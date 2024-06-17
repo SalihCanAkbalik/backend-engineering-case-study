@@ -149,48 +149,45 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Transactional
     private void createTournamentGroups(Tournament tournament) {
-        // Turnuvaya katılmak isteyen ve daha önce katılmamış olan tüm kullanıcılar alınır
+        // Turnuvaya katılmak isteyen ve daha önce katılmamış olan tüm kullanıcılar
         List<Users> users = usersRepository.findByEnterTournamentTrueAndIsAlreadyEnteredFalse().stream()
                 .filter(user -> user.getUserLevel() >= 20 && user.getCoins() >= 1000)
                 .toList();
 
-        // Mevcut incomplete gruplar alınır
+        // Mevcut tamamlanmamış gruplar
         List<GroupLeaderboard> incompleteGroups = groupLeaderboardRepository.findAll().stream()
                 .filter(group -> group.getUsersList().size() < 5)
                 .collect(Collectors.toList());
 
-        // Her bir ülkeden yalnızca bir kullanıcı seçilir ve seçilenler listesine eklenir
+        // Her bir ülkeden bir kullanıcısırayla listeye ekle
         List<Users> selectedUsers = new ArrayList<>();
         Map<Country, Boolean> countryFilled = new HashMap<>();
         for (Users user : users) {
             if (!countryFilled.containsKey(user.getCountry())) {
-                countryFilled.put(user.getCountry(), true); // Ülke işaretlenir
+                countryFilled.put(user.getCountry(), true); // Ülke işaretle
                 selectedUsers.add(user);
-                user.setIsAlreadyEntered(true); // Kullanıcı işaretlenir
+                user.setIsAlreadyEntered(true); // Kullanıcı işaretle
             }
         }
 
-        // Seçilen kullanıcılar veritabanına kaydedilir
         usersRepository.saveAll(selectedUsers);
 
-        // Seçilen kullanıcılar mevcut incomplete gruplara yerleştirilir
+        // Seçilen kullanıcıları yerleştir
         for (GroupLeaderboard group : incompleteGroups) {
             int spaceLeft = 5 - group.getUsersList().size();
             List<Users> usersToAdd = selectedUsers.stream().limit(spaceLeft).toList();
             group.getUsersList().addAll(usersToAdd);
             selectedUsers.removeAll(usersToAdd);
 
-            // Kullanıcılara grup liderlik tablosu referansı atanır
             for (Users user : usersToAdd) {
                 user.setGroupLeaderboard(group);
             }
         }
 
-        // Güncellenen incomplete gruplar kaydedilir
         groupLeaderboardRepository.saveAll(incompleteGroups);
         usersRepository.saveAll(selectedUsers);
 
-        // Eğer hala seçilen kullanıcılar varsa, yeni gruplar oluşturulur
+        // Eğer hala seçilen kullanıcılar varsa yeni gruplar oluşturulur
         int groupSize = 5;
         List<GroupLeaderboard> newGroupLeaderboards = new ArrayList<>();
         for (int i = 0; i < selectedUsers.size(); i += groupSize) {
@@ -202,13 +199,10 @@ public class TournamentServiceImpl implements TournamentService {
             groupLeaderboard.setUsersList(new ArrayList<>(groupUsers));
             newGroupLeaderboards.add(groupLeaderboard);
 
-            // Kullanıcılara grup liderlik tablosu referansı atanır
             for (Users user : groupUsers) {
                 user.setGroupLeaderboard(groupLeaderboard);
             }
         }
-
-        // Oluşturulan yeni grup liderlik tabloları ve kullanıcılar veritabanına kaydedilir
         groupLeaderboardRepository.saveAll(newGroupLeaderboards);
         usersRepository.saveAll(selectedUsers);
     }

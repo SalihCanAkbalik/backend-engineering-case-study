@@ -21,8 +21,7 @@ public class TournamentWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        // Gelen mesajı işleyin (örneğin, kullanıcı katılımı)
-        // Burada turnuvaya katılmak isteyen kullanıcıların bilgisini alabilirsiniz.
+        sessions.clear();
     }
 
     @Override

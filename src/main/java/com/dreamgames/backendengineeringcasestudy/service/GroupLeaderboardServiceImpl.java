@@ -48,7 +48,7 @@ public class GroupLeaderboardServiceImpl implements GroupLeaderboardService{
         List<GroupRankDTO> groupRanks = new ArrayList<>();
 
         for (GroupLeaderboard groupLeaderboard : groupLeaderboards) {
-            // Lazy Initialization Exception'ı önlemek için kullanıcı listesini yükle
+            // kullanıcı listesini yükle
             List<Users> usersList = groupLeaderboard.getUsersList();
 
             List<Users> sortedUsers = usersList.stream()
