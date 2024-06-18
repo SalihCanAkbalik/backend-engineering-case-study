@@ -27,8 +27,8 @@ public class TournamentController {
     }
 
     @GetMapping("/start")
-    public Tournament startTournament() {
-        return tournamentService.createTournament();
+    public ResponseEntity<Tournament> startTournament() {
+        return new ResponseEntity<>(tournamentService.createTournament(),HttpStatus.OK);
     }
 
     @GetMapping("/get-all-tournaments")

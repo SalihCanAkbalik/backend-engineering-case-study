@@ -1,15 +1,11 @@
 package com.dreamgames.backendengineeringcasestudy.controller;
 
 import com.dreamgames.backendengineeringcasestudy.controller.request.CreateUserRequest;
-import com.dreamgames.backendengineeringcasestudy.controller.request.EnterTournamentRequest;
 import com.dreamgames.backendengineeringcasestudy.controller.request.UpdateLevelRequest;
 import com.dreamgames.backendengineeringcasestudy.controller.response.CreateUserResponse;
-import com.dreamgames.backendengineeringcasestudy.dao.entity.GroupLeaderboard;
 import com.dreamgames.backendengineeringcasestudy.dao.entity.Users;
-import com.dreamgames.backendengineeringcasestudy.service.TournamentService;
 import com.dreamgames.backendengineeringcasestudy.service.UsersService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +18,7 @@ public class UsersController {
     private final UsersService usersService;
 
 
-    public UsersController(UsersService usersService, TournamentService tournamentService) {
+    public UsersController(UsersService usersService) {
         this.usersService = usersService;
     }
 
