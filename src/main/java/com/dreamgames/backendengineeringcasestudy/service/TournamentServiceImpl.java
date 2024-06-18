@@ -15,6 +15,7 @@ import com.dreamgames.backendengineeringcasestudy.enumeration.Country;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -71,7 +72,7 @@ public class TournamentServiceImpl implements TournamentService {
 
 
     @Override
-    @Transactional
+    @Async
     public List<GetGroupLeaderboardResponse> enterTournament(Long id) {
         Users user = usersRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (!user.getIsAlreadyEntered() && user.getUserLevel() >= 20 && user.getCoins() >= 1000){
@@ -100,7 +101,6 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public List<Users> allWantEnterTournament() {
         List<Users> usersList = usersRepository.findByEnterTournamentTrueAndIsAlreadyEnteredFalse().stream()
-                .filter(users -> users.getUserLevel()>= 20 && users.getCoins() >= 1000)
                 .toList();
         return usersList;
     }
@@ -114,11 +114,11 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament tournament = groupLeaderboard.getTournament();
         ClaimRewardResponse response = new ClaimRewardResponse();
 
-        if (LocalDateTime.now().isBefore(tournament.getEndTime()) && user.getIsGetLastTournamentReward()) {
+        if (LocalDateTime.now().isBefore(tournament.getEndTime())) {
             throw new IllegalStateException("The tournament not ended yet.");
         }
 
-        if (user.getIsGetLastTournamentReward()) {
+        if (user.getIsGetLastTournamentReward() != null || user.getIsGetLastTournamentReward()) {
             throw new IllegalStateException("The user already get reward.");
         }
 
@@ -151,7 +151,6 @@ public class TournamentServiceImpl implements TournamentService {
     private void createTournamentGroups(Tournament tournament) {
         // Turnuvaya katılmak isteyen ve daha önce katılmamış olan tüm kullanıcılar
         List<Users> users = usersRepository.findByEnterTournamentTrueAndIsAlreadyEnteredFalse().stream()
-                .filter(user -> user.getUserLevel() >= 20 && user.getCoins() >= 1000)
                 .toList();
 
         // Mevcut tamamlanmamış gruplar
